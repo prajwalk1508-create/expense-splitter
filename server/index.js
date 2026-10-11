@@ -5,6 +5,7 @@ import mongoose from 'mongoose';
 import Group from './models/Group.js';
 import Expense from './models/Expense.js';
 import groupRoutes from './routes/groupRoutes.js';
+import expenseRoutes from './routes/expenseRoutes.js';
 
 dotenv.config();
 
@@ -16,6 +17,7 @@ app.use(express.json());
 
 // Routes
 app.use('/api/groups', groupRoutes);
+app.use('/api/expenses', expenseRoutes);
 
 // Connect to MongoDB
 mongoose
