@@ -68,27 +68,25 @@ router.post('/', async (req, res) => {
   }
 });
 
-// GET /api/groups/:id/expenses — list expenses for a group
-router.get('/group/:id', async (req, res) => {
+// DELETE /api/expenses/:id — delete a single expense
+router.delete('/:id', async (req, res) => {
   try {
     const { id } = req.params;
 
-    // Validate the group ID
     if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({ error: 'Invalid group ID' });
+      return res.status(400).json({ error: 'Invalid expense ID' });
     }
 
-    // Verify the group exists
-    const group = await Group.findById(id);
-    if (!group) {
-      return res.status(404).json({ error: 'Group not found' });
+    const expense = await Expense.findById(id);
+    if (!expense) {
+      return res.status(404).json({ error: 'Expense not found' });
     }
 
-    // Find expenses for this group, oldest first
-    const expenses = await Expense.find({ groupId: id }).sort({ createdAt: 1 });
-    res.status(200).json(expenses);
+    await Expense.findByIdAndDelete(id);
+
+    res.status(200).json({ message: 'Expense deleted' });
   } catch (err) {
-    console.error('GET /api/groups/:id/expenses error:', err);
+    console.error('DELETE /api/expenses/:id error:', err);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
