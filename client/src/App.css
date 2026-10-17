@@ -109,3 +109,31 @@
 .group-list li:last-child {
   border-bottom: none;
 }
+
+.group-link {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  text-decoration: none;
+  color: inherit;
+  padding: 10px 0;
+  transition: background 0.15s;
+}
+
+.group-link:hover {
+  background: #f8f8f8;
+  border-radius: 6px;
+  padding-left: 8px;
+  padding-right: 8px;
+}
+
+.back-link {
+  display: inline-block;
+  margin-bottom: 16px;
+  color: #007aff;
+  text-decoration: none;
+}
+
+.back-link:hover {
+  text-decoration: underline;
+}

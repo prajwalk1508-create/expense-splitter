@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { listGroups, createGroup, getErrorMessage } from '../api.js';
 
@@ -143,14 +144,16 @@ function Home() {
         {groups.length === 0 ? (
           <p>No groups yet. Create one above.</p>
         ) : (
-          <ul className="group-list">
-            {groups.map((g) => (
-              <li key={g._id}>
-                <strong>{g.name}</strong>
-                <span className="muted"> — {g.members.length} members</span>
-              </li>
-            ))}
-          </ul>
+        <ul className="group-list">
+          {groups.map((g) => (
+           <li key={g._id}>
+             <Link to={`/group/${g._id}`} className="group-link">
+               <strong>{g.name}</strong>
+                 <span className="muted"> — {g.members.length} members</span>
+              </Link>
+            </li>
+           ))}
+         </ul>
         )}
       </section>
     </div>
