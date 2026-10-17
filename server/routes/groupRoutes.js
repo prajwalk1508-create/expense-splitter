@@ -102,4 +102,29 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
+// GET /api/groups/:id/expenses — list all expenses for a group
+router.get('/:id/expenses', async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ error: 'Invalid group ID' });
+    }
+
+    // Check the group exists
+    const group = await Group.findById(id);
+    if (!group) {
+      return res.status(404).json({ error: 'Group not found' });
+    }
+
+    // Fetch expenses for this group, oldest first
+    const expenses = await Expense.find({ groupId: id }).sort({ createdAt: 1 });
+
+    res.status(200).json(expenses);
+  } catch (err) {
+    console.error('GET /api/groups/:id/expenses error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 export default router;

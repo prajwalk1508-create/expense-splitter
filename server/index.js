@@ -6,6 +6,7 @@ import Group from './models/Group.js';
 import Expense from './models/Expense.js';
 import groupRoutes from './routes/groupRoutes.js';
 import expenseRoutes from './routes/expenseRoutes.js';
+import groupExpenseRoutes from './routes/groupExpenseRoutes.js';
 
 dotenv.config();
 
@@ -16,6 +17,7 @@ app.use(cors());
 app.use(express.json());
 
 // Routes
+app.use('/api/groups/:id/expenses', groupExpenseRoutes);
 app.use('/api/groups', groupRoutes);
 app.use('/api/expenses', expenseRoutes);
 
