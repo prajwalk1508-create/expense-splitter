@@ -1,9 +1,111 @@
 .page {
-  max-width: 800px;
+  max-width: 700px;
   margin: 0 auto;
   padding: 20px;
 }
 
 .page h1 {
+  margin-bottom: 20px;
+}
+
+.card {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.card h2 {
   margin-bottom: 16px;
+  font-size: 1.2rem;
+}
+
+.form-row {
+  margin-bottom: 16px;
+}
+
+.form-row label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 500;
+}
+
+.form-row input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 1rem;
+  margin-bottom: 8px;
+}
+
+.member-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.member-row input {
+  flex: 1;
+  margin-bottom: 0;
+}
+
+.btn-primary,
+.btn-secondary,
+.btn-remove {
+  cursor: pointer;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 16px;
+  font-size: 1rem;
+  transition: opacity 0.2s;
+}
+
+.btn-primary {
+  background: #007aff;
+  color: white;
+  width: 100%;
+  margin-top: 8px;
+}
+
+.btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  background: #f0f0f0;
+  color: #333;
+  margin-top: 8px;
+}
+
+.btn-remove {
+  background: transparent;
+  color: #ff3b30;
+  padding: 6px 10px;
+  font-size: 1rem;
+}
+
+.error {
+  color: #ff3b30;
+  margin: 12px 0;
+}
+
+.muted {
+  color: #666;
+}
+
+.group-list {
+  list-style: none;
+  padding: 0;
+}
+
+.group-list li {
+  padding: 10px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.group-list li:last-child {
+  border-bottom: none;
 }
