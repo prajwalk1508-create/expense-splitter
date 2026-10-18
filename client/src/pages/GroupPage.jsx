@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { getGroup, listExpenses, createExpense, getErrorMessage } from '../api.js';
+import { getGroup, listExpenses, createExpense, deleteExpense, getErrorMessage } from '../api.js';
 
 function GroupPage() {
   const { id } = useParams();
@@ -98,6 +98,18 @@ function GroupPage() {
       setSubmitting(false);
     }
   };
+
+  //Handel Delete
+  const handleDeleteExpense = async (expenseId) => {
+  if (!window.confirm('Delete this expense?')) return;
+
+  try {
+    await deleteExpense(expenseId);
+    setExpenses(expenses.filter((e) => e._id !== expenseId));
+  } catch (err) {
+    setFormError(getErrorMessage(err));
+  }
+};
 
   // Render states
   if (loading) {
@@ -202,14 +214,25 @@ function GroupPage() {
         {expenses.length === 0 ? (
           <p>No expenses yet.</p>
         ) : (
+          
           <ul className="expense-list">
-            {expenses.map((exp) => (
-              <li key={exp._id}>
-                <strong>{exp.paidBy}</strong> paid ₹{(exp.amount / 100).toFixed(2)} for {exp.description}
-                <span className="muted"> (split among {exp.splitAmong.length})</span>
-              </li>
-            ))}
-          </ul>
+  {expenses.map((exp) => (
+    <li key={exp._id} className="expense-item">
+      <div className="expense-info">
+        <strong>{exp.paidBy}</strong> paid ₹{(exp.amount / 100).toFixed(2)} for {exp.description}
+        <span className="muted"> (split among {exp.splitAmong.length})</span>
+      </div>
+      <button
+        type="button"
+        className="btn-delete"
+        onClick={() => handleDeleteExpense(exp._id)}
+        title="Delete expense"
+      >
+        🗑️
+      </button>
+    </li>
+  ))}
+</ul>
         )}
       </section>
     </div>
