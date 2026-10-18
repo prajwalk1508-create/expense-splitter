@@ -184,3 +184,96 @@
 .btn-delete:hover {
   background: #ffe5e5;
 }
+
+.balance-list {
+  list-style: none;
+  padding: 0;
+}
+
+.balance-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.balance-item:last-child {
+  border-bottom: none;
+}
+
+.positive {
+  color: #34c759;
+  font-weight: 500;
+}
+
+.negative {
+  color: #ff3b30;
+  font-weight: 500;
+}
+
+.neutral {
+  color: #8e8e93;
+}
+
+.settlement-list {
+  list-style: none;
+  padding: 0;
+}
+
+.settlement-item {
+  padding: 10px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.settlement-item:last-child {
+  border-bottom: none;
+}
+
+.settlement-amount {
+  color: #007aff;
+  font-weight: 500;
+  margin-left: 4px;
+}
+
+.spinner-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+}
+
+.spinner {
+  border: 3px solid #e0e0e0;
+  border-top-color: #007aff;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+.spinner-small {
+  width: 16px;
+  height: 16px;
+  border-width: 2px;
+}
+
+.spinner-medium {
+  width: 36px;
+  height: 36px;
+}
+
+.spinner-large {
+  width: 56px;
+  height: 56px;
+  border-width: 4px;
+}
+
+.spinner-label {
+  margin-top: 12px;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}

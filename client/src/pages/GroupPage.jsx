@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { getGroup, listExpenses, createExpense, deleteExpense, getErrorMessage } from '../api.js';
+import { calculateBalances, simplifyDebts } from '../utils/splitAlgorithm.js';
+import Spinner from '../components/Spinner.jsx';
 
 function GroupPage() {
   const { id } = useParams();
@@ -52,7 +54,7 @@ function GroupPage() {
     );
   };
 
-  // Submit handler
+  // Submit handler for adding expense
   const handleSubmit = async (e) => {
     e.preventDefault();
     setFormError('');
@@ -99,24 +101,24 @@ function GroupPage() {
     }
   };
 
-  //Handel Delete
+  // Delete handler
   const handleDeleteExpense = async (expenseId) => {
-  if (!window.confirm('Delete this expense?')) return;
+    if (!window.confirm('Delete this expense?')) return;
 
-  try {
-    await deleteExpense(expenseId);
-    setExpenses(expenses.filter((e) => e._id !== expenseId));
-  } catch (err) {
-    setFormError(getErrorMessage(err));
-  }
-};
+    try {
+      await deleteExpense(expenseId);
+      setExpenses(expenses.filter((e) => e._id !== expenseId));
+    } catch (err) {
+      setFormError(getErrorMessage(err));
+    }
+  };
 
   // Render states
   if (loading) {
     return (
       <div className="page">
         <Link to="/" className="back-link">← Back to Groups</Link>
-        <p>Loading...</p>
+        <Spinner label="Loading group..." />
       </div>
     );
   }
@@ -132,6 +134,10 @@ function GroupPage() {
 
   if (!group) return null;
 
+  // Compute balances and settlements
+  const balances = calculateBalances(expenses, group.members);
+  const settlements = simplifyDebts(balances);
+
   return (
     <div className="page">
       <Link to="/" className="back-link">← Back to Groups</Link>
@@ -141,6 +147,7 @@ function GroupPage() {
         {group.members.length} members · {expenses.length} expenses
       </p>
 
+      {/* Members */}
       <section className="card">
         <h2>Members</h2>
         <ul className="member-list">
@@ -150,6 +157,52 @@ function GroupPage() {
         </ul>
       </section>
 
+      {/* Balances */}
+      <section className="card">
+        <h2>Balances</h2>
+        {balances.length === 0 ? (
+          <p>No balances yet.</p>
+        ) : (
+          <ul className="balance-list">
+            {balances.map((b) => (
+              <li key={b.name} className="balance-item">
+                <span>{b.name}</span>
+                <span
+                  className={
+                    b.balance > 0
+                      ? 'positive'
+                      : b.balance < 0
+                      ? 'negative'
+                      : 'neutral'
+                  }
+                >
+                  {b.balance > 0 ? 'gets back ' : b.balance < 0 ? 'owes ' : 'settled '}
+                  ₹{Math.abs(b.balance / 100).toFixed(2)}
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+
+      {/* Settle Up */}
+      <section className="card">
+        <h2>Settle Up</h2>
+        {settlements.length === 0 ? (
+          <p>Everyone is settled up! 🎉</p>
+        ) : (
+          <ul className="settlement-list">
+            {settlements.map((s, index) => (
+              <li key={index} className="settlement-item">
+                <strong>{s.from}</strong> pays <strong>{s.to}</strong>{' '}
+                <span className="settlement-amount">₹{(s.amount / 100).toFixed(2)}</span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+
+      {/* Add Expense form */}
       <section className="card">
         <h2>Add Expense</h2>
         <form onSubmit={handleSubmit}>
@@ -204,35 +257,45 @@ function GroupPage() {
           {formError && <p className="error">⚠ {formError}</p>}
 
           <button type="submit" disabled={submitting} className="btn-primary">
-            {submitting ? 'Adding...' : 'Add Expense'}
+            {submitting ? (
+              <>
+                <span
+                  className="spinner spinner-small"
+                  style={{ display: 'inline-block', marginRight: 8, verticalAlign: 'middle' }}
+                />
+                Adding...
+              </>
+            ) : (
+              'Add Expense'
+            )}
           </button>
         </form>
       </section>
 
+      {/* Expenses list with delete */}
       <section className="card">
         <h2>Expenses</h2>
         {expenses.length === 0 ? (
           <p>No expenses yet.</p>
         ) : (
-          
           <ul className="expense-list">
-  {expenses.map((exp) => (
-    <li key={exp._id} className="expense-item">
-      <div className="expense-info">
-        <strong>{exp.paidBy}</strong> paid ₹{(exp.amount / 100).toFixed(2)} for {exp.description}
-        <span className="muted"> (split among {exp.splitAmong.length})</span>
-      </div>
-      <button
-        type="button"
-        className="btn-delete"
-        onClick={() => handleDeleteExpense(exp._id)}
-        title="Delete expense"
-      >
-        🗑️
-      </button>
-    </li>
-  ))}
-</ul>
+            {expenses.map((exp) => (
+              <li key={exp._id} className="expense-item">
+                <div className="expense-info">
+                  <strong>{exp.paidBy}</strong> paid ₹{(exp.amount / 100).toFixed(2)} for {exp.description}
+                  <span className="muted"> (split among {exp.splitAmong.length})</span>
+                </div>
+                <button
+                  type="button"
+                  className="btn-delete"
+                  onClick={() => handleDeleteExpense(exp._id)}
+                  title="Delete expense"
+                >
+                  🗑️
+                </button>
+              </li>
+            ))}
+          </ul>
         )}
       </section>
     </div>

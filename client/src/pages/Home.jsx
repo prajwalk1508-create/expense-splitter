@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { listGroups, createGroup, getErrorMessage } from '../api.js';
+import Spinner from '../components/Spinner.jsx';
 
 function Home() {
   const [groups, setGroups] = useState([]);
@@ -83,7 +84,13 @@ function Home() {
   };
 
   // Render
-  if (loading) return <div className="page"><p>Loading...</p></div>;
+  if (loading) {
+  return (
+    <div className="page">
+      <Spinner label="Loading groups..." />
+    </div>
+  );
+}
   if (error) return <div className="page"><p className="error">❌ {error}</p></div>;
 
   return (
