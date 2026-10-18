@@ -37,3 +37,53 @@ export function calculateBalances(expenses, members) {
     balance: balances[name],
   }));
 }
+
+/**
+ * Simplify debts into the minimum number of transactions.
+ * Takes an array of { name, balance }.
+ * Returns an array of { from, to, amount } in paise.
+ */
+export function simplifyDebts(balances) {
+  // Separate into creditors (positive) and debtors (negative)
+  const creditors = [];
+  const debtors = [];
+
+  for (const { name, balance } of balances) {
+    if (balance > 0) {
+      creditors.push({ name, amount: balance });
+    } else if (balance < 0) {
+      debtors.push({ name, amount: -balance }); // store as positive
+    }
+  }
+
+  // Sort descending by amount
+  creditors.sort((a, b) => b.amount - a.amount);
+  debtors.sort((a, b) => b.amount - a.amount);
+
+  const transactions = [];
+  let i = 0; // debtor index
+  let j = 0; // creditor index
+
+  while (i < debtors.length && j < creditors.length) {
+    const debtor = debtors[i];
+    const creditor = creditors[j];
+
+    const amount = Math.min(debtor.amount, creditor.amount);
+
+    if (amount > 0) {
+      transactions.push({
+        from: debtor.name,
+        to: creditor.name,
+        amount,
+      });
+    }
+
+    debtor.amount -= amount;
+    creditor.amount -= amount;
+
+    if (debtor.amount === 0) i++;
+    if (creditor.amount === 0) j++;
+  }
+
+  return transactions;
+}
