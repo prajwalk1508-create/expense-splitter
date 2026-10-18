@@ -13,10 +13,18 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-app.use(cors());
+// CORS — allow dev and production frontend
+app.use(cors({
+  origin: [
+    'http://localhost:5173',
+    'https://expense-splitter-client.vercel.app', // placeholder — update in T45
+  ],
+  credentials: true,
+}));
+
 app.use(express.json());
 
-// Routes
+// Routes — order matters!
 app.use('/api/groups/:id/expenses', groupExpenseRoutes);
 app.use('/api/groups', groupRoutes);
 app.use('/api/expenses', expenseRoutes);
@@ -32,6 +40,7 @@ app.get('/', (req, res) => {
   res.json({ message: 'Expense Splitter API is running 🚀' });
 });
 
+// Start server
 app.listen(PORT, () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);
 });

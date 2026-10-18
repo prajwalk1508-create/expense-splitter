@@ -174,7 +174,9 @@ function Home() {
             {groups.map((g) => (
               <li key={g._id}>
                 <Link to={`/group/${g._id}`} className="group-link">
-                  <strong>{g.name}</strong>
+                  <strong className="truncate" title={g.name}>
+                    {g.name && g.name.trim() ? g.name : 'Untitled Group'}
+                  </strong>
                   <span className="muted"> — {g.members.length} members</span>
                 </Link>
               </li>

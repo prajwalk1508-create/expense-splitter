@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { getGroup, listExpenses, createExpense, deleteExpense, getErrorMessage } from '../api.js';
 import { calculateBalances, simplifyDebts } from '../utils/splitAlgorithm.js';
+import { formatRupees } from '../utils/format.js';
 import Spinner from '../components/Spinner.jsx';
 import Toast from '../components/Toast.jsx';
 
@@ -191,7 +192,7 @@ function GroupPage() {
                   }
                 >
                   {b.balance > 0 ? 'gets back ' : b.balance < 0 ? 'owes ' : 'settled '}
-                  ₹{Math.abs(b.balance / 100).toFixed(2)}
+                  ₹{formatRupees(Math.abs(b.balance))}
                 </span>
               </li>
             ))}
@@ -209,7 +210,7 @@ function GroupPage() {
             {settlements.map((s, index) => (
               <li key={index} className="settlement-item">
                 <strong>{s.from}</strong> pays <strong>{s.to}</strong>{' '}
-                <span className="settlement-amount">₹{(s.amount / 100).toFixed(2)}</span>
+                <span className="settlement-amount">₹{formatRupees(s.amount)}</span>
               </li>
             ))}
           </ul>
@@ -271,7 +272,17 @@ function GroupPage() {
           {formError && <p className="error">⚠ {formError}</p>}
 
           <button type="submit" disabled={submitting} className="btn-primary">
-            {submitting ? 'Adding...' : 'Add Expense'}
+            {submitting ? (
+              <>
+                <span
+                  className="spinner spinner-small"
+                  style={{ display: 'inline-block', marginRight: 8, verticalAlign: 'middle' }}
+                />
+                Adding...
+              </>
+            ) : (
+              'Add Expense'
+            )}
           </button>
         </form>
       </section>
@@ -286,7 +297,8 @@ function GroupPage() {
             {expenses.map((exp) => (
               <li key={exp._id} className="expense-item">
                 <div className="expense-info">
-                  <strong>{exp.paidBy}</strong> paid ₹{(exp.amount / 100).toFixed(2)} for {exp.description}
+                  <strong>{exp.paidBy}</strong> paid ₹{formatRupees(exp.amount)} for{' '}
+                  <span className="truncate-inline" title={exp.description}>{exp.description}</span>
                   <span className="muted"> (split among {exp.splitAmong.length})</span>
                 </div>
                 <button
