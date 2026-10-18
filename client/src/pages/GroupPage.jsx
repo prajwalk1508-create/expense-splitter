@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { getGroup, listExpenses, createExpense, deleteExpense, getErrorMessage } from '../api.js';
 import { calculateBalances, simplifyDebts } from '../utils/splitAlgorithm.js';
 import Spinner from '../components/Spinner.jsx';
+import Toast from '../components/Toast.jsx';
 
 function GroupPage() {
   const { id } = useParams();
@@ -20,6 +21,9 @@ function GroupPage() {
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState('');
 
+  // Toast state
+  const [toast, setToast] = useState({ message: '', type: 'error' });
+
   // Fetch group + expenses
   useEffect(() => {
     let cancelled = false;
@@ -36,7 +40,9 @@ function GroupPage() {
       })
       .catch((err) => {
         if (cancelled) return;
-        setError(getErrorMessage(err));
+        const msg = getErrorMessage(err);
+        setError(msg);
+        setToast({ message: msg, type: 'error' });
       })
       .finally(() => {
         if (!cancelled) setLoading(false);
@@ -95,7 +101,9 @@ function GroupPage() {
       setPaidBy(group.members[0] || '');
       setSplitAmong(group.members);
     } catch (err) {
-      setFormError(getErrorMessage(err));
+      const msg = getErrorMessage(err);
+      setFormError(msg);
+      setToast({ message: msg, type: 'error' });
     } finally {
       setSubmitting(false);
     }
@@ -109,7 +117,9 @@ function GroupPage() {
       await deleteExpense(expenseId);
       setExpenses(expenses.filter((e) => e._id !== expenseId));
     } catch (err) {
-      setFormError(getErrorMessage(err));
+      const msg = getErrorMessage(err);
+      setFormError(msg);
+      setToast({ message: msg, type: 'error' });
     }
   };
 
@@ -128,13 +138,17 @@ function GroupPage() {
       <div className="page">
         <Link to="/" className="back-link">← Back to Groups</Link>
         <p className="error">❌ {error}</p>
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast({ message: '', type: 'error' })}
+        />
       </div>
     );
   }
 
   if (!group) return null;
 
-  // Compute balances and settlements
   const balances = calculateBalances(expenses, group.members);
   const settlements = simplifyDebts(balances);
 
@@ -257,17 +271,7 @@ function GroupPage() {
           {formError && <p className="error">⚠ {formError}</p>}
 
           <button type="submit" disabled={submitting} className="btn-primary">
-            {submitting ? (
-              <>
-                <span
-                  className="spinner spinner-small"
-                  style={{ display: 'inline-block', marginRight: 8, verticalAlign: 'middle' }}
-                />
-                Adding...
-              </>
-            ) : (
-              'Add Expense'
-            )}
+            {submitting ? 'Adding...' : 'Add Expense'}
           </button>
         </form>
       </section>
@@ -298,6 +302,12 @@ function GroupPage() {
           </ul>
         )}
       </section>
+
+      <Toast
+        message={toast.message}
+        type={toast.type}
+        onClose={() => setToast({ message: '', type: 'error' })}
+      />
     </div>
   );
 }

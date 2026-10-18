@@ -1,7 +1,8 @@
-import { Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { listGroups, createGroup, getErrorMessage } from '../api.js';
 import Spinner from '../components/Spinner.jsx';
+import Toast from '../components/Toast.jsx';
 
 function Home() {
   const [groups, setGroups] = useState([]);
@@ -14,11 +15,18 @@ function Home() {
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState('');
 
+  // Toast state
+  const [toast, setToast] = useState({ message: '', type: 'error' });
+
   // Fetch groups on mount
   useEffect(() => {
     listGroups()
       .then(setGroups)
-      .catch((err) => setError(getErrorMessage(err)))
+      .catch((err) => {
+        const msg = getErrorMessage(err);
+        setError(msg);
+        setToast({ message: msg, type: 'error' });
+      })
       .finally(() => setLoading(false));
   }, []);
 
@@ -34,7 +42,7 @@ function Home() {
   };
 
   const removeMember = (index) => {
-    if (members.length <= 2) return; // keep at least 2
+    if (members.length <= 2) return;
     setMembers(members.filter((_, i) => i !== index));
   };
 
@@ -70,28 +78,39 @@ function Home() {
         members: trimmedMembers,
       });
 
-      // Add to list
       setGroups([newGroup, ...groups]);
-
-      // Reset form
       setName('');
       setMembers(['', '']);
     } catch (err) {
-      setFormError(getErrorMessage(err));
+      const msg = getErrorMessage(err);
+      setFormError(msg);
+      setToast({ message: msg, type: 'error' });
     } finally {
       setSubmitting(false);
     }
   };
 
-  // Render
+  // Render states
   if (loading) {
-  return (
-    <div className="page">
-      <Spinner label="Loading groups..." />
-    </div>
-  );
-}
-  if (error) return <div className="page"><p className="error">❌ {error}</p></div>;
+    return (
+      <div className="page">
+        <Spinner label="Loading groups..." />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="page">
+        <p className="error">❌ {error}</p>
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast({ message: '', type: 'error' })}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="page">
@@ -151,18 +170,24 @@ function Home() {
         {groups.length === 0 ? (
           <p>No groups yet. Create one above.</p>
         ) : (
-        <ul className="group-list">
-          {groups.map((g) => (
-           <li key={g._id}>
-             <Link to={`/group/${g._id}`} className="group-link">
-               <strong>{g.name}</strong>
-                 <span className="muted"> — {g.members.length} members</span>
-              </Link>
-            </li>
-           ))}
-         </ul>
+          <ul className="group-list">
+            {groups.map((g) => (
+              <li key={g._id}>
+                <Link to={`/group/${g._id}`} className="group-link">
+                  <strong>{g.name}</strong>
+                  <span className="muted"> — {g.members.length} members</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
         )}
       </section>
+
+      <Toast
+        message={toast.message}
+        type={toast.type}
+        onClose={() => setToast({ message: '', type: 'error' })}
+      />
     </div>
   );
 }
