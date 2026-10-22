@@ -17,7 +17,7 @@ const PORT = process.env.PORT || 5000;
 app.use(cors({
   origin: [
     'http://localhost:5173',
-    'https://expense-splitter-client.vercel.app', // placeholder — update in T45
+    'expense-splitter-psi-tawny.vercel.app', // placeholder — update in T45
   ],
   credentials: true,
 }));
